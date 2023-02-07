@@ -1,0 +1,80 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:14.6
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: DPZ4ZCtygy5rGQRMjkp1DkD6OuAucZtAwzeO6rcWg0
+      POSTGRES_USER: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres_init/init.sh:/docker-entrypoint-initdb.d/init.sh
+      - ./postgres_init:/app
+      - ./postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.0.8
+    volumes:
+      - ./redis:/data
+
+  auth:
+    build:
+      context: ../airline-auth/
+    volumes:
+      - ./auth/config.yml:/app/config.yml:ro
+    ports:
+      - 50051:50051
+      - 8080:8080
+      - 8000:8000
+    command:
+      - ./aauth
+      - serve
+      - -c
+      - /app/config.yml
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+#  prometheus:
+#    container_name: digivision-prometheus
+#    image: bitnami/prometheus:2.40.1
+#    restart: unless-stopped
+#    user: "1000"
+#    command: |
+#      --config.file=/opt/bitnami/prometheus/conf/prometheus.yml
+#      --storage.tsdb.path=/opt/bitnami/prometheus/data
+#      --web.console.libraries=/opt/bitnami/prometheus/conf/console_libraries
+#      --web.console.templates=/opt/bitnami/prometheus/conf/consoles
+#      --web.enable-lifecycle
+#      --web.enable-admin-api
+#      --storage.tsdb.retention.time=2y
+#    ports:
+#      - 8001:9090
+#    volumes:
+#      - ./prometheus:/opt/bitnami/prometheus/data
+#      - ./prometheus.yml:/opt/bitnami/prometheus/conf/prometheus.yml:ro
+#    ulimits:
+#      nofile:
+#        soft: 65536
+#        hard: 65536
+
+#  grafana:
+#    container_name: digivision-grafana
+#    image: grafana/grafana-oss
+#    restart: unless-stopped
+#    user: "1000"
+#    ports:
+#      - 8002:3000
+#    volumes:
+#      - ./grafana:/var/lib/grafana
+#    ulimits:
+#      nofile:
+#        soft: 65536
+#        hard: 65536
