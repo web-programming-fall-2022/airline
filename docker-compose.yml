@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   postgres:
-    image: postgres:14.6
+    image: postgres:14.5
     restart: always
     environment:
       POSTGRES_PASSWORD: DPZ4ZCtygy5rGQRMjkp1DkD6OuAucZtAwzeO6rcWg0
@@ -23,6 +23,16 @@ services:
     image: redis:7.0.8
     volumes:
       - ./redis:/data
+    ports:
+      - "6379:6379"
+
+  bank:
+    build:
+      context: ../airline-bank/
+    volumes:
+      - ./bank/config.yml:/app/config.yml:ro
+    ports:
+      - "9000:8000"
 
   auth:
     build:
@@ -41,6 +51,28 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+
+  ticket:
+    build:
+      context: ../airline-ticket/
+#    image: ghcr.io/web-programming-fall-2022/airline-ticket:latest
+    volumes:
+      - ./ticket/.env:/app/.env:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:latest
+    restart: always
+    ports:
+      - "9500:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - auth
+#      - ticket
 
 #  prometheus:
 #    container_name: digivision-prometheus
