@@ -130,6 +130,7 @@ CREATE TABLE IF NOT EXISTS transaction
     transaction_id SERIAL PRIMARY KEY,
     purchase_id    INTEGER,
     payment_id     INTEGER,
+    receipt_id     INTEGER,
     payment_amount INTEGER,
     payment_date   TIMESTAMP,
     payment_status VARCHAR,

@@ -29,10 +29,17 @@ services:
   bank:
     build:
       context: ../airline-bank/
-    volumes:
-      - ./bank/config.yml:/app/config.yml:ro
     ports:
       - "9000:8000"
+    environment:
+      DB_NAME: bank
+      DB_USER: postgres
+      DB_PASSWORD: DPZ4ZCtygy5rGQRMjkp1DkD6OuAucZtAwzeO6rcWg0
+      DB_HOST: postgres
+      DB_PORT: 5432
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   auth:
     build:
