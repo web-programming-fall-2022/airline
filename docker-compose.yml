@@ -79,7 +79,17 @@ services:
       - ./nginx/certs:/etc/nginx/certs:ro
     depends_on:
       - auth
-#      - ticket
+      - ticket
+
+  locust:
+    image: locustio/locust
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./locust:/mnt/locust
+    command: -f /mnt/locust/locustfile.py
+    depends_on:
+      - ticket
 
 #  prometheus:
 #    container_name: digivision-prometheus
