@@ -27,8 +27,8 @@ services:
       - "6379:6379"
 
   bank:
-    build:
-      context: ../airline-bank/
+    platform: linux/amd64
+    image: ghcr.io/web-programming-fall-2022/airline-bank:v1.0.0
     ports:
       - "9000:8000"
     environment:
@@ -42,8 +42,8 @@ services:
         condition: service_healthy
 
   auth:
-    build:
-      context: ../airline-auth/
+    platform: linux/amd64
+    image: ghcr.io/web-programming-fall-2022/airline-auth:v1.0.4
     volumes:
       - ./auth/config.yml:/app/config.yml:ro
     ports:
@@ -60,13 +60,22 @@ services:
         condition: service_healthy
 
   ticket:
-    build:
-      context: ../airline-ticket/
-#    image: ghcr.io/web-programming-fall-2022/airline-ticket:latest
+    platform: linux/amd64
+    image: ghcr.io/web-programming-fall-2022/airline-ticket:v1.0.0
     volumes:
       - ./ticket/.env:/app/.env:ro
     depends_on:
       postgres:
+        condition: service_healthy
+    
+  
+  frontend:
+    platform: linux/amd64
+    image: ghcr.io/web-programming-fall-2022/airline-frontend:v0.0.0
+    depends_on:
+      auth:
+        condition: service_healthy
+      ticket:
         condition: service_healthy
 
   nginx:
