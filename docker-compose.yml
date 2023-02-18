@@ -43,7 +43,7 @@ services:
 
   auth:
     platform: linux/amd64
-    image: ghcr.io/web-programming-fall-2022/airline-auth:v1.0.4
+    image: ghcr.io/web-programming-fall-2022/airline-auth:v1.0.5
     volumes:
       - ./auth/config.yml:/app/config.yml:ro
     ports:
@@ -73,10 +73,8 @@ services:
     platform: linux/amd64
     image: ghcr.io/web-programming-fall-2022/airline-frontend:v0.0.0
     depends_on:
-      auth:
-        condition: service_healthy
-      ticket:
-        condition: service_healthy
+      - auth
+      - ticket
 
   nginx:
     image: nginx:latest
@@ -99,40 +97,3 @@ services:
     command: -f /mnt/locust/locustfile.py
     depends_on:
       - ticket
-
-#  prometheus:
-#    container_name: digivision-prometheus
-#    image: bitnami/prometheus:2.40.1
-#    restart: unless-stopped
-#    user: "1000"
-#    command: |
-#      --config.file=/opt/bitnami/prometheus/conf/prometheus.yml
-#      --storage.tsdb.path=/opt/bitnami/prometheus/data
-#      --web.console.libraries=/opt/bitnami/prometheus/conf/console_libraries
-#      --web.console.templates=/opt/bitnami/prometheus/conf/consoles
-#      --web.enable-lifecycle
-#      --web.enable-admin-api
-#      --storage.tsdb.retention.time=2y
-#    ports:
-#      - 8001:9090
-#    volumes:
-#      - ./prometheus:/opt/bitnami/prometheus/data
-#      - ./prometheus.yml:/opt/bitnami/prometheus/conf/prometheus.yml:ro
-#    ulimits:
-#      nofile:
-#        soft: 65536
-#        hard: 65536
-
-#  grafana:
-#    container_name: digivision-grafana
-#    image: grafana/grafana-oss
-#    restart: unless-stopped
-#    user: "1000"
-#    ports:
-#      - 8002:3000
-#    volumes:
-#      - ./grafana:/var/lib/grafana
-#    ulimits:
-#      nofile:
-#        soft: 65536
-#        hard: 65536
